@@ -1,0 +1,13 @@
+{
+  "name": "near-node-telegram-notificator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "author": "Timur Ruziev <ruziev.dev@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "node-fetch": "^3.2.9"
+  }
+}
