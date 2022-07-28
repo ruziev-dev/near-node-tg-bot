@@ -16,13 +16,13 @@ cd near-node-tg-bot
 npm i
 ```
 
-Make your config.env file by example .env
+Make your `config.env` file by example `.env`
 
 ```bash
 cp .env config.env
 ```
 
-Set your settings to config.env
+Set your settings to `config.env`
 
 ```bash
 nano config.env
@@ -37,4 +37,43 @@ POOL_ID="xxx.factory.shardnet.near"
 - TG_API_KEY - you can get from [**@BotFather**](https://t.me/BotFather)
 - TG_CHAT_ID - you can by using [**@GetIDs Bot**](https://t.me/getidsbot)
 
+## Run
 
+You can run it via node
+
+```
+node index.js
+```
+
+or making exeturable
+
+```
+chmod +x index.js
+```
+
+```bash
+which node
+
+# use this path to in crontask
+> /usr/bin/node
+
+```
+
+To run it automatically let's add chron task every minute
+
+```
+crontab -e
+```
+
+Add this row with setting path to Node.js and script
+
+```bash
+# set your path
+*/1 * * * * cd /home/"timur"/near-node-tg-bot/ && /bin/node index.js > /dev/null 2>&1
+```
+
+Reload cron service to start execute script
+
+```bash
+sudo service cron reload
+```
