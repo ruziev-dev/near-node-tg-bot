@@ -152,7 +152,7 @@ const main = async () => {
         let prevProdTableStr = "";
         if (oldState?.myValidatorState) {
           prevProdTableStr = getChunksBlocksStat(
-            "Last Epoch Producticit",
+            "Last Epoch Productivity",
             oldState.myValidatorState
           );
         }

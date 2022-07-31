@@ -69,7 +69,7 @@ Add this row with setting path to Node.js and script
 
 ```bash
 # set your path
-*/1 * * * * cd /home/"timur"/near-node-tg-bot/ && /bin/node index.js > /dev/null 2>&1
+*/1 * * * * cd /home/"timur"/near-node-tg-bot/ && /usr/bin/node index.js > /dev/null 2>&1
 ```
 
 Reload cron service to start execute script
