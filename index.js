@@ -4,6 +4,8 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import AsciiTable from "ascii-table";
+
 dotenv.config({ path: "./config.env" });
 const __dirname = path.resolve();
 
@@ -69,6 +71,26 @@ const nodeFetcher = new NodeFetcher(NODE_RPC, POOL_ID);
 // callback to find my pool id in different arrays
 const findMyPoolId = (pool) => pool.account_id === POOL_ID;
 
+const countNearTokens = (yoctoNear) => Math.round(yoctoNear / 10e23) || "??";
+
+const getChunksBlocksStat = (tableName = "", validatorState = {}) => {
+  const prevProdTable = new AsciiTable(tableName);
+  prevProdTable
+    .setHeading("", "Expected", "Produced")
+    .addRow(
+      "Blocks",
+      validatorState.num_expected_blocks,
+      validatorState.num_produced_blocks
+    )
+    .addRow(
+      "Chunks",
+      validatorState.num_expected_chunks,
+      validatorState.num_produced_chunks
+    );
+
+  return ["```", prevProdTable.toString(), "```"].join("\n");
+};
+
 const main = async () => {
   try {
     const node = await nodeFetcher.ping();
@@ -83,6 +105,8 @@ const main = async () => {
     const myValidatorState = result.current_validators.find(findMyPoolId);
     const myNextFishermenState = result.next_fishermen.find(findMyPoolId);
     const myNextValidatorsState = result.next_validators.find(findMyPoolId);
+    const epochStartHeight = result.epoch_start_height;
+    const epochHeight = result.epoch_height;
 
     const newState = {
       myFishermenState,
@@ -91,15 +115,88 @@ const main = async () => {
       myValidatorState,
       myNextFishermenState,
       myNextValidatorsState,
+      epochStartHeight,
     };
 
     const newStateString = JSON.stringify(newState, null, 2);
-    fs.writeFileSync(STATE_FILE, newStateString);
 
-    // notify if state has been changed
-    if (newStateString !== prev_state) {
+    //if states are equals then do nothing
+    if (newStateString === prev_state) return;
+    else {
+      let oldState;
+      if (prev_state) oldState = JSON.parse(prev_state);
+
+      if (newState.epochStartHeight !== oldState?.epochStartHeight) {
+        const epochTable = new AsciiTable(`Epoch ${epochHeight}`);
+        epochTable
+          .setHeading("Params", "Previous", "Current")
+          .addRow(
+            "current",
+            !!oldState?.myValidatorState ? "validator" : "⨯",
+            !!newState?.myValidatorState ? "validator" : "⨯"
+          )
+          .addRow(
+            "next",
+            !!oldState?.myNextValidatorsState ? "validator" : "⨯",
+            !!newState?.myNextValidatorsState ? "validator" : "⨯"
+          )
+          .addRow(
+            "stake",
+            countNearTokens(oldState?.myNextValidatorsState.stake) + " N",
+            countNearTokens(newState?.myNextValidatorsState.stake) + " N"
+          );
+
+        const epochTableStr = ["```", epochTable.toString(), "```"].join("\n");
+
+        // Producticity table if node was a validator in prevoius epoch
+        let prevProdTableStr = "";
+        if (oldState?.myValidatorState) {
+          prevProdTableStr = getChunksBlocksStat(
+            "Last Epoch Producticit",
+            oldState.myValidatorState
+          );
+        }
+
+        const kickedOutMsg =
+          newState.myKickoutState &&
+          [
+            "Kicked out 😟: \n",
+            "```",
+            JSON.stringify(newState.myKickoutState.reason, null, 2),
+            "```",
+          ].join();
+
+        const fullMessage = [
+          "**🆕 NEW EPOCH**",
+          epochTableStr,
+          prevProdTableStr,
+          kickedOutMsg,
+        ].join("\n");
+
+        await tgBot.sendMessage(fullMessage);
+      }
+
+      fs.writeFileSync(STATE_FILE, newStateString);
+    }
+
+    // if percentage of expected/produced chunks was lower less than 80%
+    const {
+      num_expected_chunks: expectedChunks,
+      num_produced_chunks: producedChunks,
+      num_expected_blocks: expectedBlocks,
+      num_produced_blocks: producedBlocks,
+    } = newState.myValidatorState;
+
+    const chunksRatio = producedChunks / expectedChunks;
+    const blocksRatio = producedBlocks / expectedBlocks;
+    const trigger = chunksRatio <= 0.8 || blocksRatio <= 0.8;
+    if (trigger) {
       const msg =
-        "⚠ POOL STATE HAS BEEN CHANGED\n\n" + "```" + newStateString + "```";
+        "⚠ SOMETHIG WRONG! \n Your node has produced lower than expected " +
+        getChunksBlocksStat(
+          "Last Epoch Producticit",
+          newState.myValidatorState
+        );
       await tgBot.sendMessage(msg);
     }
 
