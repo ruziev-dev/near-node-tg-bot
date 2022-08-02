@@ -45,11 +45,6 @@ You can run it via node
 node index.js
 ```
 
-or making exeturable
-
-```
-chmod +x index.js
-```
 
 ```bash
 which node
