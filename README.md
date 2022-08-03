@@ -1,6 +1,6 @@
 ## This script was created to Notify Near Validators about state changes in their nodes
 
-Created by Timur Ruziev (partisapant of [**stakewars-iii**](https://github.com/near/stakewars-iii))
+Created by Timur Ruziev (participant of [**stakewars-iii**](https://github.com/near/stakewars-iii))
 
 You can see my challenge report here: https://github.com/ruziev-dev/near-stakewars-iii
 
@@ -39,13 +39,11 @@ POOL_ID="xxx.factory.shardnet.near"
 
 ## Run
 
-You can run it via node
-
 ```
 node index.js
 ```
 
-
+## To automate running script find path to Node.js
 ```bash
 which node
 
@@ -54,7 +52,7 @@ which node
 
 ```
 
-To run it automatically let's add chron task every minute
+Add chron task every minute
 
 ```
 crontab -e
@@ -64,7 +62,7 @@ Add this row with setting path to Node.js and script
 
 ```bash
 # set your path
-*/1 * * * * cd /home/"timur"/near-node-tg-bot/ && /usr/bin/node index.js > /dev/null 2>&1
+*/1 * * * * cd /home/<USERNAME>/near-node-tg-bot/ && /usr/bin/node index.js > /dev/null 2>&1
 ```
 
 Reload cron service to start execute script
