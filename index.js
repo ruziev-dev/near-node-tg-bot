@@ -66,29 +66,31 @@ const main = async () => {
       await tgBot.sendMessage(msg);
     }
 
-    // if percentage of expected/produced chunks was lower less than 80%
-    const {
-      num_expected_chunks: expectedChunks,
-      num_produced_chunks: producedChunks,
-      num_expected_blocks: expectedBlocks,
-      num_produced_blocks: producedBlocks,
-    } = newState.myValidatorState;
+    if (newState.myValidatorState) {
+      // if percentage of expected/produced chunks was lower less than 80%
+      const {
+        num_expected_chunks: expectedChunks,
+        num_produced_chunks: producedChunks,
+        num_expected_blocks: expectedBlocks,
+        num_produced_blocks: producedBlocks,
+      } = newState.myValidatorState;
 
-    const chunksRatio = producedChunks / expectedChunks;
-    const blocksRatio = producedBlocks / expectedBlocks;
+      const chunksRatio = producedChunks / expectedChunks;
+      const blocksRatio = producedBlocks / expectedBlocks;
 
-    const trigger = chunksRatio <= 0.8 || blocksRatio <= 0.8;
+      const trigger = chunksRatio < 0.8 || blocksRatio < 0.8;
 
-    /* trigger is ratio prodused/expected <80%
-     * expectedChunks >= 4 is condition to avoid messages if the first or second expected chanks was failed
-     */
-    if (trigger && expectedChunks >= 4) {
-      const msgRows = [
-        "⚠ SOMETHIG WRONG!",
-        "Your node has produced lower than expected",
-        getChunksBlocksStat("Productivity", newState.myValidatorState),
-      ];
-      await tgBot.sendMessage(msgRows.join("\n"));
+      /* trigger is ratio prodused/expected <80%
+       * expectedChunks >= 4 is condition to avoid messages if the first or second expected chanks was failed
+       */
+      if (trigger && expectedChunks >= 4) {
+        const msgRows = [
+          "⚠ SOMETHIG WRONG!",
+          "Your node has produced lower than expected",
+          getChunksBlocksStat("Productivity", newState.myValidatorState),
+        ];
+        await tgBot.sendMessage(msgRows.join("\n"));
+      }
     }
 
     if (validator_account_id !== POOL_ID)
