@@ -23,10 +23,15 @@ export const getChunksBlocksStat = (tableName = "", validatorState = {}) => {
   return ["```", prevProdTable.toString(), "```"].join("\n");
 };
 
-export const prepareSwitchingEpochInfo = (epoch, oldState, newState) => {
-  const epochTable = new AsciiTable(`Epoch ${epoch}`);
+export const prepareSwitchingEpochInfo = (
+  epoch,
+  oldState,
+  newState,
+  POOL_ID
+) => {
+  const epochTable = new AsciiTable(`Epoch №${epoch}`);
   epochTable
-    .setHeading("Params", "Previous", "Current")
+    .setHeading("", "Previous", "Current")
     .addRow(
       "current",
       !!oldState?.myValidatorState ? "validator" : "⨯",
@@ -64,7 +69,8 @@ export const prepareSwitchingEpochInfo = (epoch, oldState, newState) => {
     ].join("");
 
   const fullMessage = [
-    "**🆕 NEW EPOCH**",
+    `**🆕 EPOCH №${epoch}**`,
+    getPoolId(POOL_ID),
     epochTableStr,
     prevProdTableStr,
     kickedOutMsg,
@@ -72,3 +78,5 @@ export const prepareSwitchingEpochInfo = (epoch, oldState, newState) => {
 
   return fullMessage;
 };
+
+export const getPoolId = (poolId) => `\n👷‍♂️ ${poolId}\n`;

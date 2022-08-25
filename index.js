@@ -6,12 +6,15 @@ import { NodeFetcher } from "./src/NodeFetcher.js";
 import {
   getChunksBlocksStat,
   prepareSwitchingEpochInfo,
+  getPoolId,
 } from "./src/helpers.js";
 
 dotenv.config({ path: "./config.env" });
 const __dirname = path.resolve();
 
 const STATE_FILE = __dirname + "/.prev_state.json";
+
+const TRIGGER_UPTIME_NOTIFICATION_RATIO = 0.8;
 
 let prev_state;
 try {
@@ -62,7 +65,12 @@ const main = async () => {
 
     // Notify if epoch has changed
     if (newState.epochStartHeight !== oldState?.epochStartHeight) {
-      const msg = prepareSwitchingEpochInfo(epochHeight, oldState, newState);
+      const msg = prepareSwitchingEpochInfo(
+        epochHeight,
+        oldState,
+        newState,
+        POOL_ID
+      );
       await tgBot.sendMessage(msg);
     }
 
@@ -78,7 +86,9 @@ const main = async () => {
       const chunksRatio = producedChunks / expectedChunks;
       const blocksRatio = producedBlocks / expectedBlocks;
 
-      const trigger = chunksRatio < 0.8 || blocksRatio < 0.8;
+      const trigger =
+        chunksRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO ||
+        blocksRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO;
 
       /* trigger is ratio prodused/expected <80%
        * expectedChunks >= 4 is condition to avoid messages if the first or second expected chanks was failed
@@ -86,6 +96,7 @@ const main = async () => {
       if (trigger && expectedChunks >= 4) {
         const msgRows = [
           "⚠ SOMETHIG WRONG!",
+          getPoolId(POOL_ID),
           "Your node has produced lower than expected",
           getChunksBlocksStat("Productivity", newState.myValidatorState),
         ];
@@ -98,7 +109,8 @@ const main = async () => {
   } catch (error) {
     // if there is error then something wrong with node
     console.log(error);
-    await tgBot.sendMessage("🚨 ERROR 🚨\n" + error.message);
+    const msg = [getPoolId(POOL_ID), error.message];
+    await tgBot.sendMessage("🚨 ERROR 🚨\n" + msg.join("\n"));
   }
 };
 
