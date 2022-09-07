@@ -4,9 +4,21 @@ import AsciiTable from "ascii-table";
 export const countNearTokens = (yoctoNear) =>
   Math.round(yoctoNear / 10e23) || "??";
 
+export const countProductivity = (validatorState) => {
+  const productivityInfo =
+    (validatorState.num_produced_blocks + validatorState.num_produced_chunks) /
+    (validatorState.num_expected_blocks + validatorState.num_expected_chunks);
+
+  const productivity = productivityInfo
+    ? Math.floor(productivityInfo * 10000) / 100
+    : 0;
+
+  return productivity;
+};
+
 /** make Ascii table about validator state statistics */
 export const getChunksBlocksStat = (tableName = "", validatorState = {}) => {
-  const prevProdTable = new AsciiTable(tableName);
+  const prevProdTable = new AsciiTable(/* tableName */);
   prevProdTable
     .setHeading("", "Expected", "Produced")
     .addRow(
@@ -20,7 +32,12 @@ export const getChunksBlocksStat = (tableName = "", validatorState = {}) => {
       validatorState.num_produced_chunks
     );
 
-  return ["```", prevProdTable.toString(), "```"].join("\n");
+  return [
+    `\n📊 ${tableName}: ${countProductivity(validatorState)}%`,
+    "```",
+    prevProdTable.toString(),
+    "```",
+  ].join("\n");
 };
 
 export const prepareSwitchingEpochInfo = (

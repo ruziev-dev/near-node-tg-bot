@@ -7,6 +7,7 @@ import {
   getChunksBlocksStat,
   prepareSwitchingEpochInfo,
   getPoolId,
+  countProductivity,
 } from "./src/helpers.js";
 
 dotenv.config({ path: "./config.env" });
@@ -50,6 +51,7 @@ const main = async () => {
       myValidatorState,
       myNextValidatorsState,
       epochStartHeight,
+      productivity: countProductivity(myValidatorState),
     };
 
     const newStateString = JSON.stringify(newState, null, 2);
@@ -93,7 +95,11 @@ const main = async () => {
       /* trigger is ratio prodused/expected <80%
        * expectedChunks >= 4 is condition to avoid messages if the first or second expected chanks was failed
        */
-      if (trigger && expectedChunks >= 4) {
+      if (
+        trigger &&
+        expectedChunks >= 4 &&
+       oldState?.productivity > newState.productivity
+      ) {
         const msgRows = [
           "⚠ SOMETHIG WRONG!",
           getPoolId(POOL_ID),
