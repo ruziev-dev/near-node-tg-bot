@@ -44,6 +44,7 @@ node index.js
 ```
 
 ## To automate running script find path to Node.js
+
 ```bash
 which node
 
@@ -70,3 +71,17 @@ Reload cron service to start execute script
 ```bash
 sudo service cron reload
 ```
+
+Examples of notifications you can see below:
+
+1. When there is some connection error or neard had stopped
+
+![img](https://github.com/ruziev-dev/near-stakewars-iii/raw/main/images/monitoring/new_bot/connection_error.png)
+
+2. When uptime lower 80% and goes down
+
+![img](https://github.com/ruziev-dev/near-stakewars-iii/raw/main/images/monitoring/new_bot/down_uptime.png)
+
+3. When new epoch was started
+
+![img](https://github.com/ruziev-dev/near-stakewars-iii/raw/main/images/monitoring/new_bot/new_epoch.png)
