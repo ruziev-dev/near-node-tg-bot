@@ -1,9 +1,3 @@
-## This script was created to Notify Near Validators about state changes in their nodes
-
-Created by Timur Ruziev (participant of [**stakewars-iii**](https://github.com/near/stakewars-iii))
-
-You can see my challenge report here: https://github.com/ruziev-dev/near-stakewars-iii
-
 ## Installation:
 
 Clone repository & install dependencies
@@ -31,7 +25,7 @@ nano config.env
 TG_API_KEY=""
 TG_CHAT_ID=""
 NODE_RPC="127.0.0.1:3030"
-POOL_ID="xxx.factory.shardnet.near"
+POOL_ID="xxx.poolv1.near"
 ```
 
 - TG_API_KEY - you can get from [**@BotFather**](https://t.me/BotFather)
@@ -42,6 +36,13 @@ POOL_ID="xxx.factory.shardnet.near"
 ```
 node index.js
 ```
+After first running you will get the first message to you Telegram messenger and current state will be saved to `.prev_state.json`
+
+> If you want to test again you have to remove state file.
+> ```
+> rm .prev_state.json
+> ```
+
 
 ## To automate running script find path to Node.js
 
