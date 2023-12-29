@@ -15,7 +15,7 @@ const __dirname = path.resolve();
 
 const STATE_FILE = __dirname + "/.prev_state.json";
 
-const TRIGGER_UPTIME_NOTIFICATION_RATIO = 0.8;
+const TRIGGER_UPTIME_NOTIFICATION_RATIO = 0.9;
 
 let prev_state;
 try {
