@@ -83,22 +83,32 @@ const main = async () => {
         num_produced_chunks: producedChunks,
         num_expected_blocks: expectedBlocks,
         num_produced_blocks: producedBlocks,
+        num_expected_endorsements: expectedEndorsement,
+        num_produced_endorsements: producedEndorsement,
       } = newState.myValidatorState;
+
+      let isProductionRateLow = false
 
       const chunksRatio = producedChunks / expectedChunks;
       const blocksRatio = producedBlocks / expectedBlocks;
+      const endorsementRatio = producedEndorsement / expectedEndorsement;
 
-      const trigger =
-        chunksRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO ||
-        blocksRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO;
+      if(blocksRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO && expectedBlocks >= 4){
+        isProductionRateLow = true
+      }
 
-      /* trigger is ratio prodused/expected <80%
-       * expectedChunks >= 4 is condition to avoid messages if the first or second expected chanks was failed
-       */
+      if(chunksRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO && expectedChunks >= 4){
+        isProductionRateLow = true
+      }
+
+      // endorsement is easier to fail (~95% success rate for now), give a bit more headroom
+      if(endorsementRatio < TRIGGER_UPTIME_NOTIFICATION_RATIO && expectedEndorsement >= 10){
+        isProductionRateLow = true
+      }
+
       if (
-        trigger &&
-        expectedChunks >= 4 &&
-       oldState?.productivity > newState.productivity
+        isProductionRateLow &&
+        oldState?.productivity > newState.productivity
       ) {
         const msgRows = [
           "⚠ SOMETHIG WRONG!",
