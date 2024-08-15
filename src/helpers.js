@@ -6,8 +6,8 @@ export const countNearTokens = (yoctoNear) =>
 
 export const countProductivity = (validatorState) => {
   const productivityInfo =
-    (validatorState?.num_produced_blocks + validatorState?.num_produced_chunks) /
-    (validatorState?.num_expected_blocks + validatorState?.num_expected_chunks);
+    (validatorState?.num_produced_blocks + validatorState?.num_produced_chunks + validatorState?.num_produced_endorsements) /
+    (validatorState?.num_expected_blocks + validatorState?.num_expected_chunks + validatorState?.num_expected_endorsements);
 
   const productivity = productivityInfo
     ? Math.floor(productivityInfo * 10000) / 100
@@ -30,6 +30,11 @@ export const getChunksBlocksStat = (tableName = "", validatorState = {}) => {
       "Chunks",
       validatorState.num_expected_chunks,
       validatorState.num_produced_chunks
+    )
+    .addRow(
+      "Endorsements",
+      validatorState.num_expected_endorsements,
+      validatorState.num_produced_endorsements
     );
 
   return [
